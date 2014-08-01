@@ -1,0 +1,49 @@
+from mpl_toolkits.mplot3d import Axes3D
+from matplotlib import cm
+from matplotlib.ticker import LinearLocator, FormatStrFormatter
+import matplotlib.pyplot as plt
+import numpy as np
+import pylab
+from matplotlib.mlab import griddata
+from random import *
+
+
+#really simple script that I use for plotting individual LAS files
+#when I'm tyring to determine the coordinates of a fiducial point
+#I think it's pretty self-explanatory
+f = np.load('98522115.npy')
+
+x = []
+y = []
+z = []
+for i in range(0, len(f[0])):
+    if i % 1 == 0 and f[2][i] > 100: #I find it useful to exclude points below a certain height threshold
+        x.append(f[0][i])
+        y.append(f[1][i])
+        z.append(f[2][i])
+
+#generally I plot a circular region centered on what I think the desired x and y coordinates are
+#then I alter the xcoord and ycoord until it looks like my fiducial is centered
+#and read its true xyz coordinates off of the scatter plot
+xnew = []
+ynew = []
+znew = []
+xcoord = 988229
+ycoord = 211932
+dist = 300
+
+for i in range(0, len(x)):
+    if (x[i] - xcoord)**2 + (y[i] - ycoord)**2 < dist**2:
+        xnew.append(x[i])
+        ynew.append(y[i])
+        znew.append(z[i])
+
+
+fig = pylab.figure()
+ax =  Axes3D(fig)
+surf = ax.scatter(xnew, ynew, znew, ".", s = 0.1)
+
+ax.auto_scale_xyz([xcoord - dist, xcoord + dist], [ycoord - dist , ycoord + dist], [100, 2*dist])
+plt.show()
+
+
